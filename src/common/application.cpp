@@ -1,4 +1,4 @@
-#include "core/application.hpp"
+#include "edgex/common/application.hpp"
 
 namespace edgex::core {
 

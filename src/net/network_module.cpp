@@ -1,4 +1,4 @@
-#include "network/network_module.hpp"
+#include "edgex/net/network_module.hpp"
 
 namespace edgex::network {
 

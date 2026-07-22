@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "core/application.hpp"
-#include "utils/version.hpp"
+#include "edgex/common/application.hpp"
+#include "edgex/common/version.hpp"
 
 int main() {
     const edgex::core::Application app{};

@@ -1,4 +1,4 @@
-#include "http/http_module.hpp"
+#include "edgex/http/http_module.hpp"
 
 namespace edgex::http {
 

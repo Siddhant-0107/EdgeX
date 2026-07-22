@@ -1,32 +1,43 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 project(EdgeX VERSION 0.1.0 LANGUAGES CXX)
+
+option(EDGEX_BUILD_TESTS "Build EdgeX tests" ON)
+option(EDGEX_BUILD_BENCHMARKS "Build EdgeX benchmarks" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_library(edgex_backend STATIC
-    src/core/application.cpp
-    src/network/network_module.cpp
+include(cmake/CompilerWarnings.cmake)
+
+add_library(edgex_core STATIC
+    src/common/application.cpp
+    src/common/version.cpp
+    src/net/network_module.cpp
     src/http/http_module.cpp
-    src/utils/version.cpp
 )
 
-target_include_directories(edgex_backend
+add_library(EdgeX::core ALIAS edgex_core)
+
+target_include_directories(edgex_core
     PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(edgex_backend PUBLIC cxx_std_17)
+target_compile_features(edgex_core PUBLIC cxx_std_17)
+edgex_enable_warnings(edgex_core)
 
-add_executable(edgex
-    src/main.cpp
-)
+add_executable(edgex src/main.cpp)
+target_link_libraries(edgex PRIVATE EdgeX::core)
+edgex_enable_warnings(edgex)
 
-target_link_libraries(edgex
-    PRIVATE
-        edgex_backend
-)
+if(EDGEX_BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
-enable_testing()
+if(EDGEX_BUILD_BENCHMARKS)
+    add_subdirectory(benchmarks)
+endif()

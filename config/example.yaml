@@ -1,0 +1,14 @@
+# Safe example configuration for local development.
+server:
+  host: 127.0.0.1
+  port: 8080
+  worker_threads: 4
+
+static_files:
+  document_root: ./assets/public
+
+logging:
+  level: info
+
+metrics:
+  endpoint: /metrics

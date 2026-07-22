@@ -1,23 +1,10 @@
-# Build artifacts
 /build/
 /out/
-/bin/
-/obj/
-
-# CMake
-CMakeCache.txt
-CMakeFiles/
-cmake-build-*/
+/.cache/
 compile_commands.json
-Testing/
-
-# IDE files
-.idea/
-.vs/
-.vscode/
+*.log
 *.user
 *.suo
-
-# OS files
-Thumbs.db
-.DS_Store
+.vs/
+.vscode/
+config/local.*

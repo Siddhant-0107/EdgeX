@@ -1,4 +1,4 @@
-#include "utils/version.hpp"
+#include "edgex/common/version.hpp"
 
 namespace edgex::utils {
 
