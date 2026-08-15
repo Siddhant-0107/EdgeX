@@ -15,6 +15,7 @@ add_library(edgex_core STATIC
     src/common/application.cpp
     src/common/version.cpp
     src/net/network_module.cpp
+    src/net/socket.cpp
     src/http/http_module.cpp
 )
 
@@ -27,6 +28,11 @@ target_include_directories(edgex_core
 )
 
 target_compile_features(edgex_core PUBLIC cxx_std_17)
+
+if(WIN32)
+    target_link_libraries(edgex_core PUBLIC ws2_32)
+endif()
+
 edgex_enable_warnings(edgex_core)
 
 add_executable(edgex src/main.cpp)
