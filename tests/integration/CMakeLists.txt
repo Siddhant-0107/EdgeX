@@ -1,1 +1,15 @@
-# Add integration-test targets here as end-to-end features are implemented.
+add_executable(edgex_tcp_server_lifecycle_integration_test
+	tcp_server_lifecycle_integration_test.cpp
+)
+
+target_link_libraries(edgex_tcp_server_lifecycle_integration_test
+	PRIVATE
+		EdgeX::core
+)
+
+edgex_enable_warnings(edgex_tcp_server_lifecycle_integration_test)
+
+add_test(
+	NAME tcp_server_lifecycle_integration_test
+	COMMAND edgex_tcp_server_lifecycle_integration_test
+)
