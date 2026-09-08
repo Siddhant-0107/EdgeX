@@ -18,8 +18,11 @@ add_library(edgex_core STATIC
     src/net/socket.cpp
     src/net/tcp_server.cpp
     src/http/http_request.cpp
-    src/http/http_parser.cpp
-    src/http/http_module.cpp
+src/http/http_parser.cpp
+src/http/http_response.cpp
+src/http/http_response_builder.cpp
+src/http/http_module.cpp
+
 )
 
 add_library(EdgeX::core ALIAS edgex_core)
