@@ -35,7 +35,7 @@ edgex::http::HttpRequest expect_complete(const ParseResult& result,
     expect(result.status == ParseStatus::Complete, context + ": expected Complete");
     expect(result.request.has_value(), context + ": expected a request");
     expect(!result.error.has_value(), context + ": did not expect an error");
-    return \*result.request;
+    return *result.request;
 }
 
 void expect_incomplete(const ParseResult& result, const std::string& context) {

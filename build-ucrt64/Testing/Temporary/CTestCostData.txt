@@ -1,0 +1,5 @@
+http_parser_test 0 0
+tcp_server_lifecycle_integration_test 0 0
+---
+http_parser_test
+tcp_server_lifecycle_integration_test
