@@ -1,0 +1,2 @@
+C:/msys64/ucrt64/bin/ar.exe qc libedgex_core.a CMakeFiles/edgex_core.dir/src/common/application.cpp.obj CMakeFiles/edgex_core.dir/src/common/version.cpp.obj CMakeFiles/edgex_core.dir/src/net/network_module.cpp.obj CMakeFiles/edgex_core.dir/src/net/socket.cpp.obj CMakeFiles/edgex_core.dir/src/net/tcp_server.cpp.obj CMakeFiles/edgex_core.dir/src/http/http_request.cpp.obj CMakeFiles/edgex_core.dir/src/http/http_parser.cpp.obj CMakeFiles/edgex_core.dir/src/http/http_module.cpp.obj
+C:/msys64/ucrt64/bin/ranlib.exe libedgex_core.a

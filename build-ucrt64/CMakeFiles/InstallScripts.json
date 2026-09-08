@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/cmake_install.cmake",
+		"C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/cmake_install.cmake",
+		"C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/unit/cmake_install.cmake",
+		"C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/integration/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

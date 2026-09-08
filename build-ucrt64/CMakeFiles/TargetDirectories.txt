@@ -1,0 +1,16 @@
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/CMakeFiles/edgex_core.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/CMakeFiles/edgex.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/CMakeFiles/test.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/CMakeFiles/edit_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/CMakeFiles/rebuild_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/CMakeFiles/test.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/CMakeFiles/edit_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/CMakeFiles/rebuild_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/unit/CMakeFiles/edgex_http_parser_test.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/unit/CMakeFiles/test.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/unit/CMakeFiles/edit_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/unit/CMakeFiles/rebuild_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/integration/CMakeFiles/edgex_tcp_server_lifecycle_integration_test.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/integration/CMakeFiles/test.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/integration/CMakeFiles/edit_cache.dir
+C:/Users/alok kumar/OneDrive/Desktop/CN Project/EdgeX/build-ucrt64/tests/integration/CMakeFiles/rebuild_cache.dir
