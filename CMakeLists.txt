@@ -21,6 +21,7 @@ add_library(edgex_core STATIC
 src/http/http_parser.cpp
 src/http/http_response.cpp
 src/http/http_response_builder.cpp
+src/http/router.cpp
 src/http/http_module.cpp
 
 )

@@ -28,3 +28,18 @@ add_test(
     NAME http_response_test
     COMMAND edgex_http_response_test
 )
+add_executable(edgex_router_test
+    router_test.cpp
+)
+
+target_link_libraries(edgex_router_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_router_test)
+
+add_test(
+    NAME router_test
+    COMMAND edgex_router_test
+)
