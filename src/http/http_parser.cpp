@@ -138,7 +138,17 @@ ParseResult HttpParser::parse_available_data() {
         }
 
         if (state_ == State::Headers) {
-            const std::size_t headers_end = buffer_.find("\r\n\r\n");
+            std::size_t headers_end = buffer_.find("\r\n\r\n");
+            std::size_t header_terminator_size = 4;
+
+            // A request with no headers has only the terminating CRLF left
+            // after the request line has been consumed.
+            if (headers_end == std::string::npos &&
+                buffer_.size() >= 2 && buffer_.compare(0, 2, "\r\n") == 0) {
+                headers_end = 0;
+                header_terminator_size = 2;
+            }
+
             if (headers_end == std::string::npos) {
                 if (buffer_.size() > limits_.max_header_bytes) {
                     set_error(ParseErrorCode::HeaderTooLarge,
@@ -155,7 +165,7 @@ ParseResult HttpParser::parse_available_data() {
             if (!parse_headers(headers_end)) return make_error_result();
             if (!prepare_body_expectation()) return make_error_result();
 
-            const std::size_t body_start = headers_end + 4;
+            const std::size_t body_start = headers_end + header_terminator_size;
             buffer_.erase(0, body_start);
 
             if (expected_body_bytes_ == 0) {
