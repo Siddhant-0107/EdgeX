@@ -22,6 +22,7 @@ src/http/http_parser.cpp
 src/http/http_response.cpp
 src/http/http_response_builder.cpp
 src/http/router.cpp
+src/static/static_file_server.cpp
 src/http/http_module.cpp
 
 )
