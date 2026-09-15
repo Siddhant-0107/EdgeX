@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <mutex>
+#include <string>
 #include <thread>
 
 #include "edgex/core/logger.hpp"
