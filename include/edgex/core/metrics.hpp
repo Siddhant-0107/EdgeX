@@ -4,7 +4,6 @@
 #include <chrono>
 #include <cstdint>
 #include <string>
-#include <string_view>
 
 #include "edgex/http/http_response.hpp"
 #include "edgex/http/router.hpp"
@@ -29,7 +28,9 @@ public:
     void connection_opened() noexcept;
     void connection_closed() noexcept;
 
-    void register_endpoint(http::Router& router);
+    void register_endpoint(
+        http::Router& router,
+        const proxy::RoundRobinLoadBalancer* load_balancer = nullptr);
     [[nodiscard]] http::HttpResponse render(
         const proxy::RoundRobinLoadBalancer* load_balancer = nullptr) const;
 
