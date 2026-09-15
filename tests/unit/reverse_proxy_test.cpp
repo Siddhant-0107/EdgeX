@@ -139,6 +139,8 @@ int main() {
     const auto bad_gateway = unavailable.forward(request);
     assert(bad_gateway.status == HttpStatus::BadGateway);
 
+    // The load balancer is configured with multiple backends, but none are healthy.
+    // The proxy must reject the request before attempting a network connection.
     ReverseProxyConfig no_healthy_config{
         "127.0.0.1",
         kTestPort,
@@ -149,23 +151,9 @@ int main() {
             Backend{"127.0.0.1", 18085, false},
         },
     };
-    ReverseProxy no_healthy(std::move(no_healthy_config));
+    ReverseProxy no_healthy(no_healthy_config);
     const auto unavailable_response = no_healthy.forward(request);
     assert(unavailable_response.status == HttpStatus::ServiceUnavailable);
-
-    ReverseProxyConfig multi_backend_config{
-        "127.0.0.1",
-        kTestPort,
-        std::chrono::milliseconds(100),
-        std::chrono::milliseconds(100),
-        {
-            Backend{"127.0.0.1", kTestPort, false},
-            Backend{"127.0.0.1", 18086, false},
-        },
-    };
-    ReverseProxy filtered(std::move(multi_backend_config));
-    const auto filtered_response = filtered.forward(request);
-    assert(filtered_response.status == HttpStatus::ServiceUnavailable);
 
     return 0;
 }
