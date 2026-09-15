@@ -20,6 +20,7 @@ add_library(edgex_core STATIC
     src/net/tcp_client.cpp
     src/core/thread_pool.cpp
     src/core/logger.cpp
+    src/core/metrics.cpp
     src/http/http_request.cpp
     src/http/http_parser.cpp
     src/http/http_response.cpp
