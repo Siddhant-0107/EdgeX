@@ -90,7 +90,7 @@ int main() {
         const std::string response =
             "HTTP/1.1 201 Created\r\n"
             "Content-Type: application/json\r\n"
-            "Content-Length: 16\r\n"
+            "Content-Length: 15\r\n"
             "Connection: close\r\n"
             "X-Upstream: mock\r\n"
             "\r\n"
