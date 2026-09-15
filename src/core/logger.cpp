@@ -1,6 +1,7 @@
 #include "edgex/core/logger.hpp"
 
 #include <chrono>
+#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
