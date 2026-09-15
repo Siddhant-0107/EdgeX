@@ -41,6 +41,11 @@ target_link_libraries(edgex_router_test
 
 edgex_enable_warnings(edgex_router_test)
 
+add_test(
+    NAME router_test
+    COMMAND edgex_router_test
+)
+
 add_executable(edgex_static_file_server_test
     static_file_server_test.cpp
 )
@@ -156,4 +161,20 @@ edgex_enable_warnings(edgex_health_checker_test)
 add_test(
     NAME health_checker_test
     COMMAND edgex_health_checker_test
+)
+
+add_executable(edgex_metrics_test
+    metrics_test.cpp
+)
+
+target_link_libraries(edgex_metrics_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_metrics_test)
+
+add_test(
+    NAME metrics_test
+    COMMAND edgex_metrics_test
 )
