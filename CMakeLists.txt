@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(EdgeX VERSION 0.1.0 LANGUAGES CXX)
+project(EdgeX VERSION 1.0.0 LANGUAGES CXX)
 
 option(EDGEX_BUILD_TESTS "Build EdgeX tests" ON)
 option(EDGEX_BUILD_BENCHMARKS "Build EdgeX benchmarks" OFF)
