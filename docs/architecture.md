@@ -10,7 +10,7 @@ Proxy route: `Router -> Reverse Proxy -> Round-Robin Load Balancer -> Healthy Ba
 
 Static route: `Router -> Static File Server -> HTTP Response`
 
-The load balancer **selects** a backend. The reverse proxy **performs** the outbound HTTP exchange. The health checker changes backend eligibility.
+The load balancer selects a backend; the reverse proxy performs the outbound HTTP exchange; the health checker changes backend eligibility.
 
 ## Module Boundaries
 
@@ -68,4 +68,4 @@ The benchmark suite is separate from CTest: CTest establishes correctness, while
 - **Portability:** platform-specific socket handling is isolated from HTTP and proxy logic.
 - **Controlled failure:** malformed requests, unavailable backends, and upstream failures become explicit results rather than process termination.
 
-See [component.md](diagrams/component.md), [sequence.md](diagrams/sequence.md), and [dfd.md](diagrams/dfd.md) for supporting diagrams.
+Supporting diagrams: [component](diagrams/component.md), [sequence](diagrams/sequence.md), and [DFD](diagrams/dfd.md).
