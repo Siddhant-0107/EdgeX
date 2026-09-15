@@ -46,8 +46,7 @@ std::string method_to_string(http::HttpMethod method) {
     throw std::invalid_argument("unsupported HTTP method");
 }
 
-std::string serialize_request(const http::HttpRequest& request,
-                              const ReverseProxyConfig& config) {
+std::string serialize_request(const http::HttpRequest& request, const Backend& backend) {
     if (request.target.empty() || request.target.front() != '/') {
         throw std::invalid_argument("reverse proxy requires an origin-form request target");
     }
@@ -64,8 +63,7 @@ std::string serialize_request(const http::HttpRequest& request,
     }
 
     if (!has_host) {
-        result += "Host: " + config.upstream_address + ":" +
-                  std::to_string(config.upstream_port) + "\r\n";
+        result += "Host: " + backend.address + ":" + std::to_string(backend.port) + "\r\n";
     }
 
     const std::size_t body_size = request.body ? request.body->size() : 0;
@@ -171,23 +169,43 @@ http::HttpResponse parse_response(const std::vector<std::uint8_t>& data) {
     return response;
 }
 
+http::HttpResponse make_proxy_error(http::HttpStatus status, std::string_view message) {
+    http::HttpResponse response;
+    response.status = status;
+    response.set_header("Content-Type", "text/plain");
+    response.body.assign(message.begin(), message.end());
+    return response;
+}
+
 }  // namespace
 
 ReverseProxy::ReverseProxy(ReverseProxyConfig config) : config_(std::move(config)) {
-    if (config_.upstream_address.empty()) throw std::invalid_argument("upstream address must not be empty");
-    if (config_.upstream_port == 0) throw std::invalid_argument("upstream port must be greater than 0");
     if (config_.connect_timeout.count() <= 0 || config_.io_timeout.count() <= 0) {
         throw std::invalid_argument("proxy timeouts must be greater than 0");
     }
+
+    if (config_.upstreams.empty()) {
+        if (config_.upstream_address.empty()) throw std::invalid_argument("upstream address must not be empty");
+        if (config_.upstream_port == 0) throw std::invalid_argument("upstream port must be greater than 0");
+        config_.upstreams.push_back({config_.upstream_address, config_.upstream_port, true});
+    }
+
+    load_balancer_ = std::make_unique<RoundRobinLoadBalancer>(config_.upstreams);
 }
 
 ReverseProxy::ReverseProxy(ReverseProxyConfig config, core::Logger& logger)
     : config_(std::move(config)), logger_(&logger) {
-    if (config_.upstream_address.empty()) throw std::invalid_argument("upstream address must not be empty");
-    if (config_.upstream_port == 0) throw std::invalid_argument("upstream port must be greater than 0");
     if (config_.connect_timeout.count() <= 0 || config_.io_timeout.count() <= 0) {
         throw std::invalid_argument("proxy timeouts must be greater than 0");
     }
+
+    if (config_.upstreams.empty()) {
+        if (config_.upstream_address.empty()) throw std::invalid_argument("upstream address must not be empty");
+        if (config_.upstream_port == 0) throw std::invalid_argument("upstream port must be greater than 0");
+        config_.upstreams.push_back({config_.upstream_address, config_.upstream_port, true});
+    }
+
+    load_balancer_ = std::make_unique<RoundRobinLoadBalancer>(config_.upstreams);
 }
 
 http::HttpResponse ReverseProxy::forward(const http::HttpRequest& request) const {
@@ -198,12 +216,18 @@ http::HttpResponse ReverseProxy::forward(const http::HttpRequest& request) const
         logger_->info("reverse_proxy request method=" + method + " target=" + request.target);
     }
 
+    const auto backend = load_balancer_->select();
+    if (!backend) {
+        if (logger_) logger_->warning("reverse_proxy no healthy upstream method=" + method + " target=" + request.target);
+        return make_proxy_error(http::HttpStatus::ServiceUnavailable, "Service Unavailable");
+    }
+
     try {
         net::TCPClient client(net::TCPClientConfig{
-            config_.upstream_address, config_.upstream_port,
+            backend->address, backend->port,
             config_.connect_timeout, config_.io_timeout});
         client.connect();
-        const std::string serialized = serialize_request(request, config_);
+        const std::string serialized = serialize_request(request, *backend);
         client.send_all(serialized);
 
         std::vector<std::uint8_t> response_data;
@@ -234,12 +258,7 @@ http::HttpResponse ReverseProxy::forward(const http::HttpRequest& request) const
                            " error=" + error.what());
         }
 
-        http::HttpResponse response;
-        response.status = http::HttpStatus::BadGateway;
-        response.set_header("Content-Type", "text/plain");
-        const std::string message = "Bad Gateway";
-        response.body.assign(message.begin(), message.end());
-        return response;
+        return make_proxy_error(http::HttpStatus::BadGateway, "Bad Gateway");
     }
 }
 
