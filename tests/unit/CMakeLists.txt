@@ -114,3 +114,19 @@ add_test(
     NAME tcp_client_test
     COMMAND edgex_tcp_client_test
 )
+
+add_executable(edgex_reverse_proxy_test
+    reverse_proxy_test.cpp
+)
+
+target_link_libraries(edgex_reverse_proxy_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_reverse_proxy_test)
+
+add_test(
+    NAME reverse_proxy_test
+    COMMAND edgex_reverse_proxy_test
+)
