@@ -1,6 +1,7 @@
 #include <atomic>
 #include <cassert>
 #include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -60,7 +61,7 @@ void test_health_recovery() {
     balancer.set_healthy(1, false);
 
     assert(balancer.select()->port == 18092);
-    assert(!balancer.select().has_value() == false);
+    assert(balancer.select()->port == 18092);
 
     balancer.set_healthy(0, true);
     assert(balancer.select()->port == 18090);
