@@ -141,3 +141,19 @@ add_test(
     NAME round_robin_load_balancer_test
     COMMAND edgex_round_robin_load_balancer_test
 )
+
+add_executable(edgex_health_checker_test
+    health_checker_test.cpp
+)
+
+target_link_libraries(edgex_health_checker_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_health_checker_test)
+
+add_test(
+    NAME health_checker_test
+    COMMAND edgex_health_checker_test
+)
