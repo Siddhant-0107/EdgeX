@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <mutex>
 #include <stdexcept>
 #include <string>
@@ -224,33 +225,26 @@ Result benchmark_server(std::size_t requests, std::size_t concurrency, std::uint
     server.start();
 
     std::atomic<std::size_t> accepted{0};
-    std::atomic<std::size_t> failed_tasks{0};
     std::thread acceptor([&] {
         try {
             while (accepted.load(std::memory_order_relaxed) < requests) {
                 auto client = server.accept_client();
                 accepted.fetch_add(1, std::memory_order_relaxed);
-                server.submit_client_task([client = std::move(client), &failed_tasks]() mutable {
+                auto client_ptr = std::make_shared<edgex::net::Socket>(std::move(client));
+                server.submit_client_task([client_ptr] {
                     char buffer[4096];
                     std::string request;
                     for (;;) {
-                        const auto n = native_recv(client.native_handle(), buffer, sizeof(buffer));
-                        if (n <= 0) {
-                            ++failed_tasks;
-                            return;
-                        }
+                        const auto n = native_recv(client_ptr->native_handle(), buffer, sizeof(buffer));
+                        if (n <= 0) return;
                         request.append(buffer, static_cast<std::size_t>(n));
                         if (request.find("\r\n\r\n") != std::string::npos) break;
-                        if (request.size() > 64 * 1024) {
-                            ++failed_tasks;
-                            return;
-                        }
+                        if (request.size() > 64 * 1024) return;
                     }
-                    send_response(client);
+                    send_response(*client_ptr);
                 });
             }
         } catch (...) {
-            ++failed_tasks;
         }
     });
 
@@ -300,7 +294,7 @@ Result benchmark_server(std::size_t requests, std::size_t concurrency, std::uint
 
     Result result{"TCP server request-throughput benchmark", requests,
                   successes.load(std::memory_order_relaxed),
-                  failures.load(std::memory_order_relaxed) + failed_tasks.load(std::memory_order_relaxed),
+                  failures.load(std::memory_order_relaxed),
                   elapsed_ms(start, Clock::now()), std::move(latencies)};
     return result;
 }
