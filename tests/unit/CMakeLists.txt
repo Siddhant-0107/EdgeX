@@ -98,3 +98,19 @@ add_test(
     NAME logger_test
     COMMAND edgex_logger_test
 )
+
+add_executable(edgex_tcp_client_test
+    tcp_client_test.cpp
+)
+
+target_link_libraries(edgex_tcp_client_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_tcp_client_test)
+
+add_test(
+    NAME tcp_client_test
+    COMMAND edgex_tcp_client_test
+)
