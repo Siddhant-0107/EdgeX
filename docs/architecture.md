@@ -43,27 +43,6 @@ The load balancer **selects** a backend. The reverse proxy **performs** the outb
 
 See [component.md](diagrams/component.md).
 
-```mermaid
-flowchart LR
-    Client[Client] --> Socket[Socket Layer]
-    Socket --> TCP[TCP Server]
-    TCP --> Pool[Thread Pool]
-    Pool --> Parser[HTTP Parser]
-    Parser --> Router[Router]
-    Router --> Static[Static File Server]
-    Router --> Proxy[Reverse Proxy]
-    Proxy --> LB[Round-Robin Load Balancer]
-    LB --> Backend[Healthy Backend]
-    Health[Health Checker] --> LB
-    Health --> Backend
-    TCP -.events.-> Logger[Logger]
-    Proxy -.events.-> Logger
-    Health -.transitions.-> Logger
-    TCP -.runtime data.-> Metrics[Metrics]
-    Proxy -.runtime data.-> Metrics
-    LB -.health state.-> Metrics
-```
-
 ## 5. Concurrency Model
 
 The TCP server owns the listening socket. Accepted client work can be submitted to a fixed-size thread pool. The thread pool protects its task queue with a mutex and coordinates workers using a condition variable.
@@ -78,7 +57,7 @@ For each proxy request:
 
 1. The router dispatches to the reverse proxy.
 2. The reverse proxy asks the load balancer for a backend.
-3. The load balancer scans from its current round-robin position and skips unhealthy instances.
+3. The load balancer skips unhealthy instances.
 4. The selected backend is returned to the proxy.
 5. The proxy connects using the TCP client and forwards the HTTP request.
 6. The upstream response is converted into an EdgeX response.
@@ -89,11 +68,11 @@ Separately, the health checker probes each backend periodically and updates the 
 
 ## 7. Static File Safety
 
-The static file server resolves the requested path relative to its configured document root and verifies that the resulting path remains within that root. This containment check is the security boundary that prevents `..`-style traversal from escaping the configured document tree.
+The static file server resolves the requested path relative to its configured document root and verifies that the resulting path remains within that root. This containment check prevents traversal from escaping the configured document tree.
 
 ## 8. Observability
 
-Logging and metrics are supporting services rather than routing layers. Logger records operational events according to its configured minimum level. Metrics records request/error counts, latency aggregates, active connections, and backend health information when a load balancer is supplied.
+Logger records operational events according to its configured minimum level. Metrics records request/error counts, latency aggregates, active connections, and backend health information when a load balancer is supplied.
 
 ## 9. Performance Evaluation
 
