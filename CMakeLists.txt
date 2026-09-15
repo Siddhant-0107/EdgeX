@@ -29,6 +29,7 @@ add_library(edgex_core STATIC
     src/http/http_module.cpp
     src/proxy/reverse_proxy.cpp
     src/proxy/round_robin_load_balancer.cpp
+    src/proxy/health_checker.cpp
 )
 
 add_library(EdgeX::core ALIAS edgex_core)
