@@ -119,7 +119,7 @@ int main() {
         edgex::net::Socket listener = edgex::net::Socket::create_tcp_ipv4();
         listener.bind(kPeriodicPort, "127.0.0.1");
         listener.listen(8);
-        std::thread server([&listener] { serve_health_requests(listener, 2); });
+        std::thread server([&listener] { serve_health_requests(listener, 1); });
 
         RoundRobinLoadBalancer balancer({Backend{"127.0.0.1", kPeriodicPort, false}});
         auto logger = make_test_logger("health_checker_periodic.log");
