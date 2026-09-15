@@ -23,7 +23,8 @@ public:
         std::string file_path{};
     };
 
-    explicit Logger(Config config = {});
+    Logger();
+    explicit Logger(Config config);
     ~Logger();
 
     Logger(const Logger&) = delete;
