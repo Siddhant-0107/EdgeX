@@ -181,7 +181,23 @@ ReverseProxy::ReverseProxy(ReverseProxyConfig config) : config_(std::move(config
     }
 }
 
+ReverseProxy::ReverseProxy(ReverseProxyConfig config, core::Logger& logger)
+    : config_(std::move(config)), logger_(&logger) {
+    if (config_.upstream_address.empty()) throw std::invalid_argument("upstream address must not be empty");
+    if (config_.upstream_port == 0) throw std::invalid_argument("upstream port must be greater than 0");
+    if (config_.connect_timeout.count() <= 0 || config_.io_timeout.count() <= 0) {
+        throw std::invalid_argument("proxy timeouts must be greater than 0");
+    }
+}
+
 http::HttpResponse ReverseProxy::forward(const http::HttpRequest& request) const {
+    const auto start = std::chrono::steady_clock::now();
+    const std::string method = method_to_string(request.method);
+
+    if (logger_) {
+        logger_->info("reverse_proxy request method=" + method + " target=" + request.target);
+    }
+
     try {
         net::TCPClient client(net::TCPClientConfig{
             config_.upstream_address, config_.upstream_port,
@@ -197,8 +213,27 @@ http::HttpResponse ReverseProxy::forward(const http::HttpRequest& request) const
             response_data.insert(response_data.end(), chunk.begin(), chunk.end());
         }
         client.close();
-        return parse_response(response_data);
-    } catch (const std::exception&) {
+        http::HttpResponse response = parse_response(response_data);
+
+        if (logger_) {
+            const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - start);
+            logger_->info("reverse_proxy response method=" + method +
+                          " target=" + request.target +
+                          " status=" + std::to_string(static_cast<int>(response.status)) +
+                          " duration_ms=" + std::to_string(elapsed.count()));
+        }
+        return response;
+    } catch (const std::exception& error) {
+        if (logger_) {
+            const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - start);
+            logger_->error("reverse_proxy upstream failure method=" + method +
+                           " target=" + request.target +
+                           " duration_ms=" + std::to_string(elapsed.count()) +
+                           " error=" + error.what());
+        }
+
         http::HttpResponse response;
         response.status = http::HttpStatus::BadGateway;
         response.set_header("Content-Type", "text/plain");
