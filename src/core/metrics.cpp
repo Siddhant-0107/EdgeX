@@ -63,9 +63,11 @@ void Metrics::connection_closed() noexcept {
     }
 }
 
-void Metrics::register_endpoint(http::Router& router) {
-    router.get(config_.endpoint, [this](const http::HttpRequest&) {
-        return render();
+void Metrics::register_endpoint(
+    http::Router& router,
+    const proxy::RoundRobinLoadBalancer* load_balancer) {
+    router.get(config_.endpoint, [this, load_balancer](const http::HttpRequest&) {
+        return render(load_balancer);
     });
 }
 
@@ -87,7 +89,7 @@ http::HttpResponse Metrics::render(const proxy::RoundRobinLoadBalancer* load_bal
     }
 
     http::HttpResponseBuilder builder;
-    builder.status(http::HttpStatus::ok)
+    builder.status(http::HttpStatus::Ok)
         .header("Content-Type", "text/plain; version=0.0.4")
         .body(body);
     return builder.build();
