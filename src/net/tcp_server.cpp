@@ -5,7 +5,9 @@
 
 namespace edgex::net {
 
-TCPServer::TCPServer(TCPServerConfig config) : config_(std::move(config)) {}
+TCPServer::TCPServer(TCPServerConfig config)
+    : config_(std::move(config)),
+      thread_pool_(config_.worker_count) {}
 
 void TCPServer::start() {
     if (running_) {
@@ -27,6 +29,8 @@ void TCPServer::start() {
 void TCPServer::stop() noexcept {
     listener_.close();
     running_ = false;
+
+    thread_pool_.shutdown();
 }
 
 Socket TCPServer::accept_client() {
@@ -35,6 +39,14 @@ Socket TCPServer::accept_client() {
     }
 
     return listener_.accept();
+}
+
+void TCPServer::submit_client_task(std::function<void()> task) {
+    if (!running_) {
+        throw std::logic_error("TCPServer is not running");
+    }
+
+    thread_pool_.submit(std::move(task));
 }
 
 bool TCPServer::is_running() const noexcept {
@@ -51,6 +63,10 @@ std::uint16_t TCPServer::port() const noexcept {
 
 int TCPServer::backlog() const noexcept {
     return config_.backlog;
+}
+
+std::size_t TCPServer::worker_count() const noexcept {
+    return config_.worker_count;
 }
 
 }  // namespace edgex::net

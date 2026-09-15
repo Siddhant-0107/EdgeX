@@ -66,3 +66,18 @@ add_test(
     NAME static_file_server_test
     COMMAND edgex_static_file_server_test
 )
+add_executable(edgex_thread_pool_test
+    thread_pool_test.cpp
+)
+
+target_link_libraries(edgex_thread_pool_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_thread_pool_test)
+
+add_test(
+    NAME thread_pool_test
+    COMMAND edgex_thread_pool_test
+)

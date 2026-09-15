@@ -17,6 +17,7 @@ add_library(edgex_core STATIC
     src/net/network_module.cpp
     src/net/socket.cpp
     src/net/tcp_server.cpp
+    src/core/thread_pool.cpp
     src/http/http_request.cpp
 src/http/http_parser.cpp
 src/http/http_response.cpp
