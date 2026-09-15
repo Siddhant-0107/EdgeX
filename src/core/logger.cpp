@@ -96,6 +96,9 @@ private:
     mutable std::mutex mutex_;
 };
 
+Logger::Logger()
+    : Logger(Config{}) {}
+
 Logger::Logger(Config config)
     : impl_(std::make_unique<Impl>(std::move(config))) {}
 
