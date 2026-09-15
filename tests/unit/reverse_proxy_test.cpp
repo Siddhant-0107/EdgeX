@@ -118,7 +118,10 @@ int main() {
 
     const auto response = proxy.forward(request);
     assert(response.status == HttpStatus::Created);
-    assert(response.body == std::vector<std::uint8_t>{'{','"','o','k','"',':','t','r','u','e','}','\n','1','2','3'});
+    const std::vector<std::uint8_t> expected_body{
+        '{','"','o','k','"',':','t','r','u','e','}','\n','1','2','3'
+    };
+    assert(response.body == expected_body);
     assert(response.has_header("Content-Type"));
     assert(response.has_header("X-Upstream"));
     assert(!response.has_header("Connection"));
