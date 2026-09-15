@@ -6,6 +6,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <string>
 #include <thread>
 #include <vector>
@@ -129,7 +130,17 @@ int main() {
 
         checker.start();
         assert(checker.is_running());
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        bool became_healthy = false;
+        for (int attempt = 0; attempt < 50; ++attempt) {
+            if (balancer.backends().at(0).healthy) {
+                became_healthy = true;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        assert(became_healthy);
+
         checker.stop();
         assert(!checker.is_running());
         assert(balancer.backends().at(0).healthy);
