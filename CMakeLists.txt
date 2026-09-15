@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(EdgeX VERSION 0.1.0 LANGUAGES CXX)
+project(EdgeX VERSION 1.0.0 LANGUAGES CXX)
 
 option(EDGEX_BUILD_TESTS "Build EdgeX tests" ON)
 option(EDGEX_BUILD_BENCHMARKS "Build EdgeX benchmarks" OFF)
@@ -17,9 +17,20 @@ add_library(edgex_core STATIC
     src/net/network_module.cpp
     src/net/socket.cpp
     src/net/tcp_server.cpp
+    src/net/tcp_client.cpp
+    src/core/thread_pool.cpp
+    src/core/logger.cpp
+    src/core/metrics.cpp
     src/http/http_request.cpp
     src/http/http_parser.cpp
+    src/http/http_response.cpp
+    src/http/http_response_builder.cpp
+    src/http/router.cpp
+    src/static/static_file_server.cpp
     src/http/http_module.cpp
+    src/proxy/reverse_proxy.cpp
+    src/proxy/round_robin_load_balancer.cpp
+    src/proxy/health_checker.cpp
 )
 
 add_library(EdgeX::core ALIAS edgex_core)

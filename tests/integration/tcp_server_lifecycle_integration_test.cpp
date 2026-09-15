@@ -1,5 +1,7 @@
 #include "edgex/net/tcp_server.hpp"
-
+#include <atomic>
+#include <chrono>
+#include <thread>
 #include <cstdint>
 #include <exception>
 #include <iostream>
@@ -245,7 +247,32 @@ int main() {
         server.stop();
         expect(!server.is_running(), "server should not be running after stop()");
 
-        return 0;
+        {
+    edgex::net::TCPServerConfig config{
+        "127.0.0.1",
+        kTestPort,
+        8,
+        2,
+    };
+
+    edgex::net::TCPServer server(config);
+
+    server.start();
+
+    std::atomic<bool> task_completed{false};
+
+    server.submit_client_task([&task_completed] {
+        task_completed.store(true);
+    });
+
+    for (int i = 0; i < 100 && !task_completed.load(); ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+
+expect(task_completed.load(), "submitted client task should execute");
+    server.stop();
+}
+return 0;
     } catch (const std::exception& ex) {
         std::cerr << "tcp_server_lifecycle_integration_test failed: " << ex.what()
                   << '\n';

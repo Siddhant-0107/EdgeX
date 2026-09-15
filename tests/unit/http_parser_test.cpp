@@ -30,7 +30,7 @@ void expect(bool condition, const std::string& message) {
     }
 }
 
-const edgex::http::HttpRequest& expect_complete(const ParseResult& result,
+edgex::http::HttpRequest expect_complete(const ParseResult& result,
                                                 const std::string& context) {
     expect(result.status == ParseStatus::Complete, context + ": expected Complete");
     expect(result.request.has_value(), context + ": expected a request");
@@ -269,3 +269,4 @@ int main() {
     std::cout << "All " << tests.size() << " parser tests passed\n";
     return 0;
 }
+
