@@ -27,6 +27,7 @@ add_library(edgex_core STATIC
     src/http/router.cpp
     src/static/static_file_server.cpp
     src/http/http_module.cpp
+    src/proxy/reverse_proxy.cpp
 )
 
 add_library(EdgeX::core ALIAS edgex_core)
