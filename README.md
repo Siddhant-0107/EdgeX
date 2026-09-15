@@ -2,199 +2,186 @@
 
 > A modular backend infrastructure platform built from scratch in Modern C++17.
 
-EdgeX is an educational, production-inspired backend infrastructure project. It is designed to explore how core backend systems work internally by implementing HTTP serving, routing, concurrency, reverse proxying, load balancing, health checks, observability, and configuration management without relying on a full web framework.
+EdgeX is an educational, production-inspired backend infrastructure project that implements core backend building blocks without relying on a full web framework. The v1.0 scope covers TCP networking, HTTP/1.1 request handling, routing, static files, concurrency, reverse proxying, load balancing, health checks, logging, metrics, and benchmarking.
 
-> **Project status:** Early development. The repository currently provides the modular C++17 scaffold, build tooling, and project documentation. Functional capabilities are delivered progressively through the [Roadmap](docs/Roadmap.md).
+> **Project status:** v1.0 implementation complete. The repository contains the implemented core modules, unit/integration tests, benchmark suite, architecture documentation, and engineering workflow documentation. Final release packaging is tracked separately.
 
-## Motivation
+## v1.0 Features
 
-Most applications depend on web servers, load balancers, and proxies, yet the systems concepts behind them are often hidden by frameworks and managed platforms. EdgeX provides a focused environment for learning those concepts through implementation.
+| Component | Purpose |
+|---|---|
+| Socket layer | RAII abstraction over platform TCP sockets. |
+| TCP server | Configurable bind/listen/accept lifecycle and worker-pool integration. |
+| HTTP parser | Incremental HTTP/1.1 request parsing and validation. |
+| Response builder | HTTP status, headers, body, and serialization support. |
+| Router | Method + path route matching with controlled 404 handling. |
+| Static file server | Document-root serving with traversal protection and MIME mapping. |
+| Thread pool | Configurable workers, queued tasks, exception isolation, and graceful shutdown. |
+| Logger | Thread-safe trace/debug/info/warning/error/critical logging to console and/or file. |
+| TCP client | Outbound TCP connection, timeout, send, receive, and close support. |
+| Reverse proxy | HTTP forwarding to an upstream backend with controlled 502 failures. |
+| Round-robin load balancer | Thread-safe selection of healthy configured backends. |
+| Health checker | Periodic backend probes with health-state transitions. |
+| Metrics | Thread-safe request/error/latency/connection metrics and `/metrics` rendering. |
+| Benchmark suite | Parser, router, thread-pool, and TCP-server performance measurements. |
 
-The project emphasizes:
+## Architecture
 
-- TCP and HTTP/1.1 protocol fundamentals.
-- Resource-safe systems programming with Modern C++.
-- Clear module boundaries and testable interfaces.
-- Production-inspired operational practices: logging, metrics, configuration, and benchmarking.
+The primary request path is:
 
-EdgeX is intended for learning, experimentation, and portfolio development. It is not currently intended for internet-facing production deployment.
-
-## Features
-
-### Foundation available now
-
-- Modern C++17 project scaffold.
-- Modular public-header and source layout.
-- CMake build configuration and debug/release presets.
-- Compiler-warning configuration.
-- Documentation, coding standards, Git workflow, and v1.0 roadmap.
-
-### Version 1.0 target features
-
-- HTTP/1.1 TCP server.
-- HTTP request parser and response builder.
-- Method- and path-based router.
-- Static file server with path-traversal protection.
-- Configurable thread pool.
-- Reverse proxy.
-- Round-robin load balancer.
-- Backend health checker.
-- Configurable logging.
-- Runtime metrics endpoint.
-- Benchmarking utilities.
-- File-based configuration management.
-
-## Planned Features
-
-The v1.0 implementation order is tracked in the [Roadmap](docs/Roadmap.md). Major milestones include:
-
-1. Socket Layer and TCP Server.
-2. HTTP Parser, Response Builder, Router, and Static File Server.
-3. Thread Pool and Logger.
-4. Reverse Proxy, Load Balancer, and Health Checker.
-5. Metrics, Benchmarking, Documentation, and Release.
-
-## Project Architecture
-
-```mermaid
-flowchart LR
-    Client[Clients] <-->|HTTP/1.1 over TCP| Tcp[TCP Server]
-
-    subgraph EdgeX[EdgeX]
-        Tcp --> Pool[Thread Pool]
-        Pool --> Parser[HTTP Parser]
-        Parser --> Router[Router]
-        Router -->|Static route| Static[Static File Server]
-        Router -->|Proxy route| Proxy[Reverse Proxy]
-        Proxy --> LB[Load Balancer]
-        LB --> Proxy
-        Config[Configuration Manager] -.configures.-> Tcp
-        Config -.configures.-> Router
-        Config -.configures.-> Proxy
-        Health[Health Checker] -.health state.-> LB
-        Logger[Logger] -.events.-> Tcp
-        Metrics[Metrics Endpoint] -.runtime data.-> Tcp
-    end
-
-    Static --> Tcp
-    Proxy <-->|HTTP| Backend[Backend Servers]
-    Tcp --> Client
+```text
+Client
+  |
+  | HTTP/1.1 over TCP
+  v
+TCP Server
+  |
+  v
+Thread Pool
+  |
+  v
+HTTP Parser
+  |
+  v
+Router
+  |----------------------|
+  |                      |
+  v                      v
+Static File Server    Reverse Proxy
+                         |
+                         v
+                 Round-Robin Load Balancer
+                         |
+                         v
+                  Healthy Backend
 ```
 
-For proxied requests, the load balancer selects a healthy upstream backend and the reverse proxy performs the HTTP forwarding. Detailed design material is available in the [architecture document](docs/architecture.md).
+The **load balancer selects** a healthy upstream; the **reverse proxy performs** the HTTP forwarding. The health checker updates backend health state, while logging and metrics provide operational visibility.
 
-## Directory Structure
+See [architecture.md](docs/architecture.md) and [component guide](docs/components.md) for detailed design.
+
+## Repository Layout
 
 ```text
 EdgeX/
-|- include/edgex/       # Public headers grouped by module
-|  |- net/              # Socket and TCP interfaces
-|  |- http/             # HTTP request and response interfaces
-|  |- routing/          # Route matching interfaces
-|  |- static/           # Static-file-serving interfaces
-|  |- concurrency/      # Threading and task execution interfaces
-|  |- proxy/            # Proxy, load-balancing, and health interfaces
-|  |- observability/    # Logging and metrics interfaces
-|  |- config/           # Configuration interfaces
-|  `- common/           # Focused shared abstractions
-|- src/                 # Implementations mirroring module ownership
-|- tests/               # Unit tests, integration tests, and fixtures
-|- benchmarks/          # Performance benchmarks
-|- config/              # Safe example configuration files
-|- docs/                # Specifications, architecture, standards, and diagrams
-|- scripts/             # Developer automation
-|- assets/              # Documentation and demo assets
+|- include/edgex/       # Public C++ interfaces
+|- src/                 # Module implementations
+|- tests/               # Unit/integration tests and fixtures
+|- benchmarks/          # Performance benchmark executable and instructions
+|- config/              # Example configuration material
+|- docs/                # Requirements, architecture, design, workflow, diagrams
+|- scripts/              # Developer automation
 |- cmake/               # Reusable CMake modules
 |- examples/            # Small usage examples
-`- third_party/         # Explicitly managed vendored dependencies, if needed
+`- third_party/         # Explicitly managed dependencies, if needed
 ```
 
-## Build Instructions
+## Build and Test
 
 ### Prerequisites
 
 - CMake 3.21 or later.
-- A C++17-compliant compiler:
-  - MSVC 2022 or later on Windows.
-  - GCC 9 or later on Linux.
-  - Clang 10 or later on macOS or Linux.
-- Ninja is recommended when using CMake presets.
+- C++17 compiler.
+- Windows: MSYS2 UCRT64 + GCC is a supported development environment; Visual Studio can also be used with an appropriate generator.
+- Linux/macOS: C++17-capable GCC or Clang.
 
-### Build with CMake presets
+### Configure and build
 
-```powershell
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug
+```bash
+cmake -S . -B build
+cmake --build build
 ```
 
-### Build directly with CMake
+### Run tests
 
-```powershell
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
+```bash
 ctest --test-dir build --output-on-failure
 ```
 
-On Windows with Visual Studio, configure with a Visual Studio generator or run the commands from a Developer PowerShell.
+The v1.0 validation suite contains **12 unit/integration tests**.
 
-## Usage
+### Build benchmarks
 
-The current scaffold builds an `edgex` executable that confirms the application version:
+Benchmarks are disabled by default:
 
-```powershell
-.\out\build\debug\edgex
+```bash
+cmake -S . -B build-ucrt64 -DEDGEX_BUILD_BENCHMARKS=ON
+cmake --build build-ucrt64
 ```
 
-Expected output:
+Run the complete suite from the MSYS2 UCRT64 shell on Windows:
+
+```bash
+./build-ucrt64/benchmarks/edgex_benchmark.exe --requests 10000 --concurrency 4 --port 19090
+```
+
+Available options:
 
 ```text
-EdgeX backend scaffold v0.1.0
+--component all|parser|router|threadpool|server
+--requests N
+--concurrency N
+--port P
 ```
 
-As v1.0 modules are delivered, EdgeX will load runtime settings from configuration files such as [config/example.yaml](config/example.yaml). The eventual server workflow will be documented here with command-line and configuration examples.
+See [benchmark documentation](benchmarks/README.md) for methodology.
 
-## Roadmap
+## v1.0 Benchmark Baseline
 
-Sprint 1 targets the first complete EdgeX release, `v1.0.0`.
+Recorded using **10,000 requests and concurrency 4** on the project development environment:
 
-- [ ] Socket Layer
-- [ ] TCP Server
-- [ ] HTTP Parser
-- [ ] Response Builder
-- [ ] Router
-- [ ] Static File Server
-- [ ] Thread Pool
-- [ ] Logger
-- [ ] Reverse Proxy
-- [ ] Load Balancer
-- [ ] Health Checker
-- [ ] Metrics
-- [ ] Benchmarking
-- [ ] Documentation and Release
+| Benchmark | Throughput | p50 | p95 | p99 |
+|---|---:|---:|---:|---:|
+| HTTP parser | 201,242 ops/s | 3.90 us | 5.80 us | 6.00 us |
+| Router matching | 1,876,736 ops/s | 0.40 us | 0.50 us | 0.50 us |
+| Thread-pool task execution | 241,944 ops/s | 9.70 us | 855.20 us | 967.50 us |
+| TCP server request throughput | 2,573 req/s | 508.90 us | 10,706.60 us | 21,762.85 us |
 
-See the detailed, deliverable-based [Roadmap](docs/Roadmap.md).
+All 10,000 operations/requests completed successfully in the recorded run. Results are environment-dependent and should be treated as a reproducible reference, not a universal performance claim.
+
+## Testing
+
+The v1.0 suite covers HTTP parsing, response construction, routing, static-file security, thread-pool lifecycle/concurrency, logging, TCP client behavior, reverse proxying, load balancing, health checking, metrics, and TCP server lifecycle/integration behavior.
+
+Correctness is kept separate from performance measurement: benchmarks are built and executed explicitly and are not registered as pass/fail CTest cases.
 
 ## Documentation
 
 - [Software Requirements Specification](docs/SRS.md)
 - [Architecture](docs/architecture.md)
+- [Component Guide](docs/components.md)
+- [Sequence Diagram](docs/diagrams/sequence.md)
+- [Data Flow Diagram](docs/diagrams/dfd.md)
+- [Component Diagram](docs/diagrams/component.md)
 - [Design Decisions](docs/design-decisions.md)
 - [Coding Standards](docs/coding-standards.md)
-- [Git Workflow](docs/git-workflow.md)
+- [Development Workflow](docs/Development_Workflow.md)
 - [Roadmap](docs/Roadmap.md)
+- [Benchmarking](benchmarks/README.md)
+
+## Known Limitations / Out of Scope
+
+EdgeX v1.0 is a focused learning implementation and is **not intended for internet-facing production deployment**.
+
+- HTTP/1.1 is the supported application protocol; HTTP/2 and HTTP/3 are out of scope.
+- HTTPS/TLS and WebSockets are not implemented.
+- Authentication, authorization, and rate limiting are not implemented.
+- Reverse-proxy response handling and connection management are intentionally limited compared with mature proxy stacks; advanced transfer encodings are outside v1.0.
+- Round-robin is the supported load-balancing strategy; dynamic service discovery is out of scope.
+- Metrics are lightweight in-process metrics rather than a complete monitoring platform.
+- The benchmark suite provides local reference measurements, not cross-machine performance certification.
+- Event-driven I/O such as `epoll`/`kqueue` and distributed-system features are outside v1.0.
+
+These are deliberate scope boundaries.
 
 ## Contributing
 
-Contributions, design discussions, and issue reports are welcome as the project evolves.
-
-1. Read the [Coding Standards](docs/coding-standards.md) and [Git Workflow](docs/git-workflow.md).
-2. Create a focused branch, for example `feature/http-parser` or `fix/request-timeout`.
+1. Read the [Coding Standards](docs/coding-standards.md) and [Development Workflow](docs/Development_Workflow.md).
+2. Create a focused feature or fix branch.
 3. Add or update tests for behavioral changes.
-4. Ensure the project builds and relevant tests pass.
-5. Open a pull request using a focused title and Conventional Commit-style description.
-
-Please keep changes small, avoid unrelated formatting changes, and document meaningful API or architectural decisions.
+4. Build the project and run `ctest --test-dir build --output-on-failure`.
+5. Keep commits focused and use Conventional Commit-style messages.
+6. Document meaningful API or architectural changes.
 
 ## License
 
@@ -202,17 +189,4 @@ EdgeX is licensed under the [MIT License](LICENSE).
 
 ## Future Scope
 
-Future releases may explore:
-
-- HTTPS and TLS support.
-- HTTP/2 and improved connection handling.
-- WebSockets.
-- Authentication, authorization, and rate limiting.
-- Caching and additional load-balancing strategies.
-- Service discovery and dynamic backend registration.
-- Distributed tracing and richer metrics integration.
-- Event-driven I/O using `epoll`, `kqueue`, or platform-specific alternatives.
-- Containerized deployment and CI automation.
-- Database, message-queue, and distributed-system integration.
-
-These capabilities are intentionally outside the scope of EdgeX v1.0.
+Potential post-v1.0 work includes HTTPS/TLS, HTTP/2/3, WebSockets, authentication, richer metrics/tracing, additional load-balancing strategies, dynamic service discovery, event-driven I/O, containerization/CI, and distributed-system integrations.
