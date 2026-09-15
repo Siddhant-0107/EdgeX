@@ -41,11 +41,6 @@ target_link_libraries(edgex_router_test
 
 edgex_enable_warnings(edgex_router_test)
 
-add_test(
-    NAME router_test
-    COMMAND edgex_router_test
-)
-
 add_executable(edgex_static_file_server_test
     static_file_server_test.cpp
 )
@@ -129,4 +124,20 @@ edgex_enable_warnings(edgex_reverse_proxy_test)
 add_test(
     NAME reverse_proxy_test
     COMMAND edgex_reverse_proxy_test
+)
+
+add_executable(edgex_round_robin_load_balancer_test
+    round_robin_load_balancer_test.cpp
+)
+
+target_link_libraries(edgex_round_robin_load_balancer_test
+    PRIVATE
+        EdgeX::core
+)
+
+edgex_enable_warnings(edgex_round_robin_load_balancer_test)
+
+add_test(
+    NAME round_robin_load_balancer_test
+    COMMAND edgex_round_robin_load_balancer_test
 )
