@@ -1,8 +1,6 @@
 # EdgeX High-Level Architecture
 
-## Purpose
-
-EdgeX is a modular HTTP/1.1 backend infrastructure platform implemented in Modern C++17. The architecture separates networking, request parsing, routing, local content serving, proxying, backend selection, health checking, concurrency, logging, and metrics.
+EdgeX is a modular HTTP/1.1 backend infrastructure platform implemented in Modern C++17.
 
 ## Request Path
 
@@ -19,8 +17,8 @@ The load balancer **selects** a backend. The reverse proxy **performs** the outb
 | Module | Responsibility |
 |---|---|
 | Socket Layer | RAII ownership and platform-specific TCP socket operations. |
-| TCP Server | Listener lifecycle, client acceptance, and dispatch to the worker pool. |
-| TCP Client | Outbound TCP connection, timeout, send, receive, and close operations. |
+| TCP Server | Listener lifecycle, client acceptance, and worker-pool dispatch. |
+| TCP Client | Outbound TCP connections, timeouts, send, receive, and close. |
 | Thread Pool | Bounded workers, task queue, synchronization, and graceful draining shutdown. |
 | HTTP Parser | Incremental HTTP/1.1 request decoding and validation. |
 | Response Builder | HTTP response representation and serialization. |
@@ -70,4 +68,4 @@ The benchmark suite is separate from CTest: CTest establishes correctness, while
 - **Portability:** platform-specific socket handling is isolated from HTTP and proxy logic.
 - **Controlled failure:** malformed requests, unavailable backends, and upstream failures become explicit results rather than process termination.
 
-See [component.md](diagrams/component.md), [sequence.md](diagrams/sequence.md), and [dfd.md](diagrams/dfd.md) for the supporting diagrams.
+See [component.md](diagrams/component.md), [sequence.md](diagrams/sequence.md), and [dfd.md](diagrams/dfd.md) for supporting diagrams.
