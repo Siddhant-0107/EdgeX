@@ -86,10 +86,11 @@ http::HttpResponse Metrics::render(const proxy::RoundRobinLoadBalancer* load_bal
         }
     }
 
-    return http::HttpResponseBuilder(http::HttpStatus::ok)
+    http::HttpResponseBuilder builder;
+    builder.status(http::HttpStatus::ok)
         .header("Content-Type", "text/plain; version=0.0.4")
-        .body(std::move(body))
-        .build();
+        .body(body);
+    return builder.build();
 }
 
 const MetricsConfig& Metrics::config() const noexcept {
