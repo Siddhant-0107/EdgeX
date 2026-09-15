@@ -1,14 +1,13 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
-#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <mutex>
-#include <numeric>
-#include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -23,9 +22,7 @@
 #if defined(_WIN32)
 #include <winsock2.h>
 #else
-#include <cerrno>
 #include <sys/socket.h>
-#include <unistd.h>
 #endif
 
 namespace {
@@ -56,7 +53,9 @@ void usage() {
 std::size_t parse_size(const char* value, const char* option) {
     try {
         const unsigned long long parsed = std::stoull(value);
-        if (parsed == 0 || parsed > std::numeric_limits<std::size_t>::max()) throw std::exception{};
+        if (parsed == 0 || parsed > std::numeric_limits<std::size_t>::max()) {
+            throw std::runtime_error("out of range");
+        }
         return static_cast<std::size_t>(parsed);
     } catch (...) {
         throw std::invalid_argument(std::string("invalid value for ") + option);
@@ -306,18 +305,14 @@ Result benchmark_server(std::size_t requests, std::size_t concurrency, std::uint
     return result;
 }
 
-void print_baseline_header(const Options& options) {
-    std::cout << "EdgeX v1.0 benchmark baseline\n"
-              << "requests=" << options.requests
-              << " concurrency=" << options.concurrency << "\n";
-}
-
 } // namespace
 
 int main(int argc, char** argv) {
     try {
         const Options options = parse_options(argc, argv);
-        print_baseline_header(options);
+        std::cout << "EdgeX v1.0 benchmark baseline\n"
+                  << "requests=" << options.requests
+                  << " concurrency=" << options.concurrency << "\n";
         if (options.component == "all" || options.component == "parser")
             print_result(benchmark_parser(options.requests));
         if (options.component == "all" || options.component == "router")
