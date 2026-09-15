@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 
+#include "edgex/core/logger.hpp"
 #include "edgex/http/http_request.hpp"
 #include "edgex/http/http_response.hpp"
 
@@ -19,6 +20,7 @@ struct ReverseProxyConfig {
 class ReverseProxy {
 public:
     explicit ReverseProxy(ReverseProxyConfig config);
+    ReverseProxy(ReverseProxyConfig config, core::Logger& logger);
 
     [[nodiscard]] http::HttpResponse forward(const http::HttpRequest& request) const;
 
@@ -26,6 +28,7 @@ public:
 
 private:
     ReverseProxyConfig config_{};
+    core::Logger* logger_{nullptr};
 };
 
 }  // namespace edgex::proxy
